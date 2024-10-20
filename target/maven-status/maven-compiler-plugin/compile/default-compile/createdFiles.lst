@@ -1,0 +1,9 @@
+bigdata\worldpop\ResumeCities$ResumeMapper.class
+bigdata\worldpop\ResumeCities$ResumeReducer.class
+bigdata\worldpop\FilterCities$CitiesWithPopMapper.class
+bigdata\worldpop\TPWorldPopulation.class
+bigdata\worldpop\ResumeCities.class
+bigdata\worldpop\ResumeCities$ResumeCombiner.class
+bigdata\worldpop\FilterCities.class
+bigdata\worldpop\ResumeCities$CityResume.class
+bigdata\worldpop\FilterCities$MaxReduce.class
