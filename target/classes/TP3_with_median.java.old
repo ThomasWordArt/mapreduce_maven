@@ -23,6 +23,8 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+import bigdata.worldpop.FilterCities;
+
 public class TP3_with_median extends Configured implements Tool {
 
 	public static class CitiesWithPopMapper	extends Mapper<LongWritable, Text, Text, IntWritable> {
