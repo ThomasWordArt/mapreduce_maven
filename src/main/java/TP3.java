@@ -8,6 +8,7 @@
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Iterator;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -25,6 +26,8 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+
+import bigdata.worldpop.ResumeCities.CityResume;
 
 public class TP3_without_median extends Configured implements Tool {
 
@@ -110,11 +113,22 @@ public class TP3_without_median extends Configured implements Tool {
 
 	public static class CitiesReducer extends Reducer<IntWritable,CityLevel,Text,Text> {
 		public void reduce(IntWritable key, Iterable<CityLevel> values,Context context) throws IOException, InterruptedException {
-			CityLevel level=new CityLevel();
-			for (CityLevel val : values) {
-				level.combine(val);
-			}
+			CityLevel level=CitiesCombiner.merge(values)
 			context.write(new Text(Double.toString(Math.pow(10,key.get()))),new Text(level.toString()));
+		}
+	}
+
+	public static class CitiesCombiner extends Reducer<IntWritable,CityLevel,Text,Text> {
+		public static CityLevel merge(Iterable<CityResume> values){
+			CityLevel level = new CityLevel();
+			Iterator<CityResume> iterator=values.iterator();
+			while(iterator.hasNext()) level.merge(iterator.next())
+			return level;
+		}
+
+		public void reduce(IntWritable key, Iterable<CityLevel> values,Context context) throws IOException, InterruptedException {
+			CityLevel level=merge(values);
+			if(level!=null) context.write(key,level);
 		}
 	}
 
@@ -137,12 +151,16 @@ public class TP3_without_median extends Configured implements Tool {
 			return -1;
 		}
 		job.setMapperClass(CitiesMapper.class);
+		job.setMapOutputKeyClass(IntWritable.class);
+		job.setMapOutputValueClass(CityLevel.class);
+		job.setCombinerClass(CitiesCombiner.class);
 		job.setReducerClass(CitiesReducer.class);
+
 		return job.waitForCompletion(true) ? 0 : 1;
 	}
 
 	public static void main(String args[]) throws Exception {
-		System.exit(ToolRunner.run(new TP3_without_median(), args));
+		System.exit(ToolRunner.run(new TP3(), args));
 	}
 
 
